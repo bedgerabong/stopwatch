@@ -27,3 +27,11 @@
 *.exe
 *.out
 *.app
+
+# Other
+
+*.suo
+/stopwatch/Debug
+/stopwatch/x64
+*.db
+*.opendb
