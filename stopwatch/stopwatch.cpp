@@ -10,11 +10,12 @@ int main()
     {
         Stopwatch spotwatch;
         size_t sum{};
-        for (size_t i=0; i< 1000000; ++i)
+        for (size_t i=0; i< 1'000; ++i)
         {
             sum += i;
         }
-        std::cout << spotwatch.elapsedTime<std::chrono::nanoseconds>() << std::endl;
+        std::cout << spotwatch.elapsedTime() << std::endl;
+        std::cout << sum << std::endl;
     }
     return 0;
 }
