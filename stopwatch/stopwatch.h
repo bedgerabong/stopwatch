@@ -25,6 +25,24 @@ SOFTWARE.
 #include <chrono>
 #include <ostream>
 
+/** A basic stopwatch that uses a high resolution clock.
+
+Usage example:
+    {
+        Stopwatch stopwatch;
+        ...
+        std::cout << stopwatch.elapsedTime() << std::endl;
+    }
+
+Notes:
+
+*   For Visual Studio 2015 & greater the implementation of high_resolution_clock 
+    was changed to meet the C++ Standard requirements for steadiness and monotonicity 
+    and is implemeneted by using QueryPerformanceCounter (). 
+
+
+
+*/
 class Stopwatch
 {
 public:
@@ -32,8 +50,6 @@ public:
     // Delete any copy operations as it doesn't make sense to make a copy.
     Stopwatch(Stopwatch const&) = delete;
     Stopwatch& operator=(Stopwatch const&) = delete;
-    Stopwatch(Stopwatch&&) = delete;
-    Stopwatch& operator=(Stopwatch&&) = delete;
 
     /// Default ctor that sets the stopwatch's start time
     Stopwatch()
@@ -54,8 +70,8 @@ public:
     // Get the elapsed time since the stopwatch's start time
     Duration elapsedTime() const
     {
-        auto end = std::chrono::high_resolution_clock::now();
-        return Duration(myStartTime, end);
+        auto endTime = std::chrono::high_resolution_clock::now();
+        return Duration(myStartTime, endTime);
     }
 
     // Helper class that allows us to provide a convenient std::ostream override.
