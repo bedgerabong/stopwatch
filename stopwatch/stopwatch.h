@@ -29,76 +29,90 @@ class Stopwatch
 {
 public:
 
+    // Delete any copy operations as it doesn't make sense to make a copy.
+    Stopwatch(Stopwatch const&) = delete;
+    Stopwatch& operator=(Stopwatch const&) = delete;
+    Stopwatch(Stopwatch&&) = delete;
+    Stopwatch& operator=(Stopwatch&&) = delete;
+
+    /// Default ctor that sets the stopwatch's start time
+    Stopwatch()
+    :   myStartTime(std::chrono::high_resolution_clock::now())
+    {
+    }
+
+    // Reset the stopwatch's start time
+    void reset()
+    {
+        myStartTime = std::chrono::high_resolution_clock::now();
+    }
+
+    // Add forward declaration so we can add Duration's defintion
+    // after the declaration of elapsedTime()
+    struct Duration;
+
+    // Get the elapsed time since the stopwatch's start time
+    Duration elapsedTime() const
+    {
+        auto end = std::chrono::high_resolution_clock::now();
+        return Duration(myStartTime, end);
+    }
+
+    // Helper class that allows us to provide a convenient std::ostream override.
+    // For example:
+    //     Stopwatch stopwatch;
+    //         ...
+    //     std::cout << stopwatch.elapsedTime() << std::endl;
     struct Duration
     {
-        Duration(Duration const&) = default;
-        Duration(Duration&&) = default;
-        Duration& operator=(Duration const&) = default;
-
         Duration(
-            std::chrono::high_resolution_clock::time_point start,
-            std::chrono::high_resolution_clock::time_point end
+            std::chrono::high_resolution_clock::time_point startTime,
+            std::chrono::high_resolution_clock::time_point endTime
         )
-        : myDuration(end-start)
+        :   myDuration(endTime - startTime)
         {
         }
 
         void print(std::ostream& os) const
         {
-            long long count = myDuration.count();
-            if (count < 1'000)
+            auto const count = std::chrono::nanoseconds(myDuration).count();
+            if (count < 1'000) // print as nanoseconds
             {
-                os << count << " nanosecs" << std::endl;
+                using FractionalDuration = std::chrono::duration<double, std::nano>;
+                os << FractionalDuration(myDuration).count() << " nanosecs";
             }
-            else if (count < 1'000'000)
+            else if (count < 1'000'000) // rescale and print as microoseconds
             {
                 using FractionalDuration = std::chrono::duration<double, std::micro>;
-                os << FractionalDuration(myDuration).count() << " microsecs" << std::endl;
+                os << FractionalDuration(myDuration).count() << " microsecs";
             }
             else if (count < 1'000'000'000)
             {
                 using FractionalDuration = std::chrono::duration<double, std::milli>;
-                os << FractionalDuration(myDuration).count() << " millisecs" << std::endl;
+                os << FractionalDuration(myDuration).count() << " millisecs";
             }
-            else if (count < 1'000'000'000'000)
+            else
             {
                 using FractionalDuration = std::chrono::duration<double>;
-                os << FractionalDuration(myDuration).count() << " secs" << std::endl;
+                os << FractionalDuration(myDuration).count() << " secs";
             }
         }
 
-        friend std::ostream& operator<<(std::ostream& os, const Duration& duration);
+        // Add an convenient std::ostream override.
+        // For example:
+        //     Stopwatch stopwatch;
+        //         ...
+        //     std::cout << stopwatch.elapsedTime() << std::endl;
+        friend std::ostream& operator<<(std::ostream& os, const Duration& duration)
+        {
+            duration.print(os);
+            return os;
+        }
 
     private:
-
-        std::chrono::nanoseconds myDuration;
+        std::chrono::high_resolution_clock::duration myDuration;
     };
 
-    Stopwatch()
-        : m_start(std::chrono::high_resolution_clock::now())
-    {
-    }
-
-    void reset()
-    {
-        m_start = std::chrono::high_resolution_clock::now();
-    }
-
-    Duration elapsedTime() const
-    {
-        auto end = std::chrono::high_resolution_clock::now();
-        return Duration(m_start,end);
-    }
-
 private:
-
-    std::chrono::high_resolution_clock::time_point m_start;
-
+    std::chrono::high_resolution_clock::time_point myStartTime;
 };
-
-
-std::ostream& operator<<(std::ostream& os, const Stopwatch::Duration& duration)
-{
-    duration.print(os);
-    return os;
-}
