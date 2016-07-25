@@ -25,6 +25,7 @@ SOFTWARE.
 #include <chrono>
 #include <ostream>
 
+
 /** A basic stopwatch that uses a high resolution clock.
 
 Usage example:
@@ -93,6 +94,7 @@ public:
         // Rescale to most convenient time units (secs, millisecs etc..) and print the elapsed time 
         void print(std::ostream& os) const
         {
+            // get the elapsed time at the highest possible resolution which is nanoseconds
             auto const count = std::chrono::nanoseconds(myDuration).count();
             if (count < 1'000) // print as nanoseconds
             {
@@ -104,12 +106,12 @@ public:
                 using FractionalDuration = std::chrono::duration<double, std::micro>;
                 os << FractionalDuration(myDuration).count() << " microsecs";
             }
-            else if (count < 1'000'000'000)
+            else if (count < 1'000'000'000) // rescale and print as milliseconds
             {
                 using FractionalDuration = std::chrono::duration<double, std::milli>;
                 os << FractionalDuration(myDuration).count() << " millisecs";
             }
-            else
+            else // rescale and print as seconds
             {
                 using FractionalDuration = std::chrono::duration<double>;
                 os << FractionalDuration(myDuration).count() << " secs";
@@ -125,11 +127,11 @@ public:
         }
 
     private:
-        // The elapsed time 
+        // The elapsed time. 
         std::chrono::high_resolution_clock::duration myDuration;
     };
 
 private:
-    // The stopwatch's start time 
+    // The stopwatch's start time.
     std::chrono::high_resolution_clock::time_point myStartTime;
 };
