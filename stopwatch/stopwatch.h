@@ -38,7 +38,8 @@ Notes:
 
 *   For Visual Studio 2015 & greater the implementation of high_resolution_clock 
     was changed to meet the C++ Standard requirements for steadiness and monotonicity 
-    and is implemeneted by using QueryPerformanceCounter (). 
+    and is implemeneted by using the OS function QueryPerformanceCounter which 
+    is the highest resolution and most accurate timer available on Windows. 
 
 
 
@@ -75,7 +76,7 @@ public:
     }
 
     // Helper class that allows us to provide a convenient std::ostream override.
-    // For example:
+    // Usage example:
     //     Stopwatch stopwatch;
     //         ...
     //     std::cout << stopwatch.elapsedTime() << std::endl;
@@ -89,6 +90,7 @@ public:
         {
         }
 
+        // Rescale to most convenient time units (secs, millisecs etc..) and print the elapsed time 
         void print(std::ostream& os) const
         {
             auto const count = std::chrono::nanoseconds(myDuration).count();
@@ -114,10 +116,7 @@ public:
             }
         }
 
-        // Add an convenient std::ostream override.
-        // For example:
-        //     Stopwatch stopwatch;
-        //         ...
+        // Add a convenient std::ostream override which allows us to:
         //     std::cout << stopwatch.elapsedTime() << std::endl;
         friend std::ostream& operator<<(std::ostream& os, const Duration& duration)
         {
@@ -126,9 +125,11 @@ public:
         }
 
     private:
+        // The elapsed time 
         std::chrono::high_resolution_clock::duration myDuration;
     };
 
 private:
+    // The stopwatch's start time 
     std::chrono::high_resolution_clock::time_point myStartTime;
 };
